@@ -1,0 +1,24 @@
+{
+  "name": "neo-tracker",
+  "version": "1.0.0",
+  "description": "Website displaying information about Near Earth Objects",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dgreenheck/neo-tracker.git"
+  },
+  "author": "Dan Greenheck",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dgreenheck/neo-tracker/issues"
+  },
+  "homepage": "https://github.com/dgreenheck/neo-tracker#readme",
+  "dependencies": {
+    "ejs": "^3.1.8",
+    "express": "^4.18.1"
+  }
+}
