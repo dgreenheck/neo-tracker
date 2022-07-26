@@ -1,19 +1,14 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Home Page</title>
-    <link rel="stylesheet" href="css/styles.css">
-</head>
-<body>
-    <h1>Near Earth Objects</h1>
-    <% for(var i = 0; i < near_earth_objects.length; i++) { %>
-        <p><%= near_earth_objects[i].name %></p>
-    <% } %>
-</body>
-</html>
+import fetch from "node-fetch";
+import { API_KEY } from "./constants.js";
 
+export async function getNEOs(page) {
+  const response = await fetch(`https://api.nasa.gov/neo/rest/v1/neo/browse?page=${page}&size=20&api_key=${API_KEY}`);
+  const data = await response.json();
+  console.log(data);
+  return data
+}
 
-<!--
+/*
 {
   "is_potentially_hazardous_asteroid": true,
   "is_sentry_object": true,
@@ -38,4 +33,3 @@
   "sentry_data": "string"
 }
 */
--->
