@@ -1,6 +1,8 @@
-const path = require('path');
-const express = require('express');
-const ejs = require('ejs');
+import express from 'express';
+import path from 'path';
+
+import { getStats } from './services/stats.js';
+
 const app = express();
 
 // Render static files
@@ -10,8 +12,9 @@ app.use(express.static('public'));
 app.set('view engine', 'ejs');
 
 // Routes
-app.get('/', (req, res) => {
-  res.render('pages/home', { name: 'Dan' });
+app.get('/', async (req, res) => {
+  const data = await getStats();
+  res.render('pages/neo-stats', data);
 });
 
 const PORT = 3001;

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home Page</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <h1>Statistics</h1>
+    <ul>
+      <li>Near Earth Object Count: <%= near_earth_object_count %></span></li>
+      <li>Close Approach Count: <%= close_approach_count %></span></li>
+      <li>Last Updated: <%= last_updated %></span></li>
+      <li><%= source %></span></li>
+      <li><%= nasa_jpl_url %></span></li>
+    </ul>
+</body>
+</html>
+
+<!--
+{
+  "near_earth_object_count": 0,
+  "close_approach_count": 0,
+  "last_updated": "string",
+  "source": "string",
+  "nasa_jpl_url": {}
+}
+-->
