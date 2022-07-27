@@ -11,9 +11,12 @@ app.use(express.static('public'));
 // Set EJS as templating engine
 app.set('view engine', 'ejs');
 
-const PORT = 3001;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
+let port = process.env.PORT;
+if (port == null || port == "") {
+  port = 3001;
+}
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`)
 });
 
 /* --- ROUTES --- */
