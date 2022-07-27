@@ -4,7 +4,6 @@ import { API_KEY } from "./constants.js";
 export async function getStats() {
   const response = await fetch(`https://api.nasa.gov/neo/rest/v1/stats?api_key=${API_KEY}`);
   const data = await response.json();
-  console.log(data);
   return data
 }
 

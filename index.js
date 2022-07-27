@@ -1,5 +1,5 @@
-import express from 'express';
-import path from 'path';
+import express, { query } from 'express';
+import url from 'url';
 
 import { getNEOs } from './services/neo.js';
 import { getStats } from './services/stats.js';
@@ -23,6 +23,16 @@ app.listen(PORT, () => {
 
 app.get('/', async (req, res) => {
   const data = await getNEOs(0);
+  res.render('pages/home', data);
+});
+
+app.get('/:page', async (req, res) => {
+  let page = '0';
+  if (req.params['page'] !== undefined) {
+    page = req.params['page'];
+  }
+  console.log(page);
+  const data = await getNEOs(page);
   res.render('pages/home', data);
 });
 
