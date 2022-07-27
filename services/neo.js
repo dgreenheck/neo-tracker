@@ -4,7 +4,12 @@ import { API_KEY } from "./constants.js";
 export async function getNEOs(page) {
   const response = await fetch(`https://api.nasa.gov/neo/rest/v1/neo/browse?page=${page}&size=20&api_key=${API_KEY}`);
   const data = await response.json();
-  console.log(data);
+  return data
+}
+
+export async function getNEO(id) {
+  const response = await fetch(`https://api.nasa.gov/neo/rest/v1/neo/${id}?api_key=${API_KEY}`);
+  const data = await response.json();
   return data
 }
 

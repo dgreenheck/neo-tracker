@@ -14,48 +14,19 @@
         <th>Max Est. Diameter (m)</th>
         <th>Is Potentially Hazardous?</th>
       </tr>
-      <% for(var i = 0; i < near_earth_objects.length; i++) { %>
+      <% near_earth_objects.forEach( neo => {%>
         <tr>
-          <td><%= near_earth_objects[i].name %></td>
-          <td><%= near_earth_objects[i].name_limited %></td>
-          <td><%= near_earth_objects[i].estimated_diameter.meters.estimated_diameter_min %></td>
-          <td><%= near_earth_objects[i].estimated_diameter.meters.estimated_diameter_max %></td>
-          <td><%= near_earth_objects[i].is_potentially_hazardous_asteroid %></td>
+          <td><a href="/neo/<%= neo.id %>"><%= neo.name %></a></td>
+          <td><%= Math.trunc(neo.estimated_diameter.meters.estimated_diameter_min).toLocaleString() %></td>
+          <td><%= Math.trunc(neo.estimated_diameter.meters.estimated_diameter_max).toLocaleString() %></td>
+          <td class=<%= neo.is_potentially_hazardous_asteroid ? 'hazardous' : 'not-hazardous' %>><%= neo.is_potentially_hazardous_asteroid %></td>
         </tr>
-      <% } %>
+      <% }) %>
     </table>
     <% for(var i = Math.max(page.number - 5, 0); 
-           i < Math.min(page.number + 5, page.total_pages); 
+           i <= Math.min(page.number + 5, page.total_pages); 
            i++) { %>
       <a href='/<%= i %>'><%= i %></a>
     <% } %>
 </body>
 </html>
-
-
-<!--
-{
-  "is_potentially_hazardous_asteroid": true,
-  "is_sentry_object": true,
-  "neo_reference_id": "string",
-  "name": "string",
-  "name_limited": "string",
-  "designation": "string",
-  "nasa_jpl_url": "string",
-  "absolute_magnitude_h": 0,
-  "estimated_diameter": {},
-  "close_approach_data": [
-    {
-      "close_approach_date_full": "string",
-      "close_approach_date": "string",
-      "epoch_date_close_approach": 0,
-      "relative_velocity": {},
-      "miss_distance": {},
-      "orbiting_body": "string"
-    }
-  ],
-  "orbital_data": {},
-  "sentry_data": "string"
-}
-*/
--->

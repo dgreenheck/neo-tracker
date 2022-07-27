@@ -1,7 +1,6 @@
 import express, { query } from 'express';
-import url from 'url';
 
-import { getNEOs } from './services/neo.js';
+import { getNEO, getNEOs } from './services/neo.js';
 import { getStats } from './services/stats.js';
 
 const app = express();
@@ -11,8 +10,6 @@ app.use(express.static('public'));
 
 // Set EJS as templating engine
 app.set('view engine', 'ejs');
-
-
 
 const PORT = 3001;
 app.listen(PORT, () => {
@@ -31,12 +28,27 @@ app.get('/:page', async (req, res) => {
   if (req.params['page'] !== undefined) {
     page = req.params['page'];
   }
-  console.log(page);
-  const data = await getNEOs(page);
-  res.render('pages/home', data);
+  const neos = await getNEOs(page);
+  res.render('pages/home', neos);
+});
+
+app.get('/neo/:id', async (req, res) => {
+  if (req.params['id'] === undefined) return;
+
+  let neoId = req.params['id'];
+  let startDateString = req.query['startDate'];
+  let endDateString = req.query['endDate'];
+
+  const neo = await getNEO(neoId);
+
+  res.render('pages/neo-details', { 
+    neo: neo, 
+    startDateString: startDateString,
+    endDateString: endDateString
+  });
 });
 
 app.get('/stats', async (req, res) => {
   const data = await getStats();
-  res.render('pages/neo-stats', data);
+  res.render('pages/stats', data);
 });

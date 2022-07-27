@@ -1,3 +1,11 @@
 h1 {
   color: red;
 }
+
+.hazardous {
+  color: red;
+}
+
+.not-hazardous {
+  color: green;
+}
