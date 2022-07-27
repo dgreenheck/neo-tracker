@@ -1,83 +1,111 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title><%= neo.name %></title>
+    <title><%= name %></title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
-<body>
-    <h1><%= neo.name %></h1>
+<body onload="filterTable()">
+    <h1><%= name %></h1>
     <table>
       <tr>
         <td>Nickname</td>
-        <td><%= neo.name_limited %></td>
+        <td><%= name_limited %></td>
       </tr>
       <tr>
         <td>URL</td>
-        <td><a href='<%= neo.nasa_jpl_url %>'><%= neo.nasa_jpl_url %></a></td>
+        <td><a href='<%= nasa_jpl_url %>'><%= nasa_jpl_url %></a></td>
       </tr>
       <tr>
         <td>Reference ID</td>
-        <td><%= neo.neo_reference_id %></td>
+        <td><%= neo_reference_id %></td>
       </tr>
       <tr>
         <td>Designation</td>
-        <td><%= neo.designation %></td>
+        <td><%= designation %></td>
       </tr>
       <tr>
         <td>Absolute Magnitude</td>
-        <td><%= neo.absolute_magnitude_h %></td>
+        <td><%= absolute_magnitude_h %></td>
       </tr>
       <tr>
         <td>Is Potentially Hazardous</td>
-        <td><%= neo.is_potentially_hazardous_asteroid %></td>
+        <td><%= is_potentially_hazardous_asteroid %></td>
       </tr>
       <tr>
         <td>Min Estimated Diameter (m)</td>
-        <td><%= Math.round(neo.estimated_diameter.meters.estimated_diameter_min).toLocaleString() %></td>
+        <td><%= Math.round(estimated_diameter.meters.estimated_diameter_min).toLocaleString() %></td>
       </tr>
       <tr>
         <td>Max Estimated Diameter (m)</td>
-        <td><%= Math.round(neo.estimated_diameter.meters.estimated_diameter_max).toLocaleString() %></td>
+        <td><%= Math.round(estimated_diameter.meters.estimated_diameter_max).toLocaleString() %></td>
       </tr>
     </table>
 
     <h2>Close Approaches</h2>
     
-    <input type="date" id="startDate" value=<%= startDateString ?? "1950-01-01" %>>
-    <input type="date" id="endDate" value=<%= endDateString ?? "2050-01-01" %>>
-    <input type="button" id="dateButton" onclick="applyDateFilter()" value="Apply">
-
-    <table>
+    <label for="start-date">Start Date: </label>
+    <input type="date" id="start-date" onfocusout="filterTable()" value="1900-01-01" min="1900-01-01" max="2200-01-01">
+    <label for="end-date">End Date: </label>
+    <input type="date" id="end-date" onfocusout="filterTable()" value="2200-01-01" min="1900-01-01" max="2200-01-01">
+    
+    <table id="table-closest-approaches">
       <tr>
+        <th style="display: none;"></th>
         <th>Date</th>
-        <th>Relative Velocity (km/s)</th>
         <th>Miss Distance (km)</th>
+        <th>Relative Velocity (km/s)</th>
       </tr>
-      <% neo.close_approach_data 
-          .filter(approach => {
-            let approachDate = Date.parse(approach.close_approach_date);
-            let startDate = Date.parse(startDateString);
-            let endDate = Date.parse(endDateString);
-            return (startDate === undefined || approachDate >= startDate) &&
-                   (endDate === undefined || approachDate <= endDate)
-          })
-          .forEach(approach => { 
+      <% close_approach_data.forEach(approach => { 
       %>
       <tr>
+        <%# Hide this column, only used for filtering %>
+        <td style="display: none;"><%= approach.close_approach_date %></td>
         <td><%= approach.close_approach_date_full %></td>
-        <td><%= Number(approach.relative_velocity.kilometers_per_second).toFixed(3).toLocaleString() %></td>
         <td><%= Math.trunc(Number(approach.miss_distance.kilometers)).toLocaleString() %></td>
+        <td><%= Number(approach.relative_velocity.kilometers_per_second).toFixed(3).toLocaleString() %></td>
       </tr>
       <% }) %>
     </table>
 
     <script type="text/javascript">
-      function applyDateFilter() {
-        let url = window.location.href.split('?')[0];
-        let startDate = document.getElementById('startDate').value;
-        let endDate = document.getElementById('endDate').value;
-        let urlWithParams = `${url}?startDate=${startDate}&endDate=${endDate}`
-        window.location = urlWithParams;
+      function filterTable() {
+        let startDate = Date.parse(document.getElementById("start-date").value);
+        let endDate = Date.parse(document.getElementById("end-date").value);
+        let table = document.getElementById("table-closest-approaches");
+        let tableRows = table.getElementsByTagName("tr");
+
+        console.log(startDate);
+        console.log(endDate);
+
+        // Loop through all table rows, and hide those who don't match the search query
+        for (i = 0; i < tableRows.length; i++) {
+          let dateColumn = tableRows[i].getElementsByTagName("td")[0];
+          if (dateColumn) {
+            let date = Date.parse(dateColumn.innerText);
+            console.log(date);
+            if (date >= startDate && date <= endDate) {
+              tableRows[i].style.display = "";
+            } else {
+              tableRows[i].style.display = "none";
+            }
+          }
+        }
+      }
+
+      function toggleStartDateFilter() {
+        if (!document.getElementById('checkbox-start-date').checked) {
+          document.getElementById('start-date').setAttribute('disabled', 'true');
+        } else {
+          document.getElementById('start-date').removeAttribute('disabled');
+        }
+      }
+
+      function toggleEndDateFilter() {
+        if (!document.getElementById('checkbox-end-date').checked) {
+          document.getElementById('end-date').setAttribute('disabled', 'true');
+        } else {
+          document.getElementById('end-date').removeAttribute('disabled');
+        }
       }
     </script>
 </body>

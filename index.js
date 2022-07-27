@@ -37,18 +37,9 @@ app.get('/:page', async (req, res) => {
 
 app.get('/neo/:id', async (req, res) => {
   if (req.params['id'] === undefined) return;
-
   let neoId = req.params['id'];
-  let startDateString = req.query['startDate'];
-  let endDateString = req.query['endDate'];
-
-  const neo = await getNEO(neoId);
-
-  res.render('pages/neo-details', { 
-    neo: neo, 
-    startDateString: startDateString,
-    endDateString: endDateString
-  });
+  const neo = await getNEO(neoId)
+  res.render('pages/neo-details', neo);
 });
 
 app.get('/stats', async (req, res) => {
