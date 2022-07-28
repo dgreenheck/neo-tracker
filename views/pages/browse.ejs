@@ -1,18 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Browse NEOs</title>
-    <link rel="stylesheet" href="/css/styles.css">
+  <title>Browse NEOs</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet"> 
 </head>
 <body>
-    <h1>Near Earth Objects</h1>
-    <%- include('../partials/neo-table.ejs') %>
-    <% for(var i = Math.max(page.number - 5, 0); 
-           i <= Math.min(page.number + 5, page.total_pages); 
-           i++) { %>
-      <a href='/browse/<%= i %>'><%= i %></a>
-    <% } %>
+  <h1>Near Earth Objects</h1>
+  <%- include('../partials/neo-table.ejs') %>
+    <div class="pagination-control">
+      <% for(var i = Math.max(page.number - 5, 0); i <= Math.min(page.number + 5, page.total_pages); i++) { %>
+        <a class="pagination-link<%= i == page.number ? " selected" : "" %>" href="/browse/<%= i %>"">
+          <%= i %>
+        </a>
+        <% } %>
+    </div>
     <hr>
     <%- include('../partials/stats.ejs') %>
 </body>
+
 </html>

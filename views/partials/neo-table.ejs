@@ -1,16 +1,28 @@
-<table>
-  <tr>
-    <th>Identifier</th>
-    <th>Min Est. Diameter (m)</th>
-    <th>Max Est. Diameter (m)</th>
-    <th>Is Potentially Hazardous?</th>
+<table class="neo-table">
+  <tr class="neo-table-header-row">
+    <th class="neo-table-header-cell"></th>
+    <th class="neo-table-header-cell" colspan="2">Estimated Diameter</th>
+    <th class="neo-table-header-cell"></th>
+    <th class="neo-table-header-cell"></th>
+  </tr>
+  <tr class="neo-table-header-row">
+    <th class="neo-table-header-cell">Identifier</th>
+    <th class="neo-table-header-cell">Min</th>
+    <th class="neo-table-header-cell">Max</th>
+    <th class="neo-table-header-cell">Is Hazardous?</th>
+    <th class="neo-table-header-cell"></th>
   </tr>
   <% near_earth_objects.forEach( neo => {%>
-    <tr>
-      <td><a href="/neo/<%= neo.id %>"><%= neo.name %></a></td>
-      <td><%= Math.trunc(neo.estimated_diameter.meters.estimated_diameter_min).toLocaleString() %></td>
-      <td><%= Math.trunc(neo.estimated_diameter.meters.estimated_diameter_max).toLocaleString() %></td>
-      <td class=<%= neo.is_potentially_hazardous_asteroid ? 'hazardous' : 'not-hazardous' %>><%= neo.is_potentially_hazardous_asteroid %></td>
+    <tr class="neo-table-data-row">
+      <td class="neo-table-data-cell"><%= neo.name %></a></td>
+      <td class="neo-table-data-cell number"><%= Math.trunc(neo.estimated_diameter.meters.estimated_diameter_min).toLocaleString() %>m</td>
+      <td class="neo-table-data-cell number"><%= Math.trunc(neo.estimated_diameter.meters.estimated_diameter_max).toLocaleString() %>m</td>
+      <td class="neo-table-data-cell">
+        <div class="tag <%= neo.is_potentially_hazardous_asteroid ? "hazardous" : "not-hazardous" %>">
+          <%= neo.is_potentially_hazardous_asteroid ? "yes" : "" %>
+        </div>
+      </td>
+      <td class="neo-table-data-cell"><a href="/neo/<%= neo.id %>">Info</td>
     </tr>
   <% }) %>
 </table>
