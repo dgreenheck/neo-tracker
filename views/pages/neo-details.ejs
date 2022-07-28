@@ -2,19 +2,15 @@
 <html>
 <head>
     <title><%= name %></title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="/css/styles.css" type="text/css">
 </head>
 <body onload="filterTable()">
+    <button onclick="history.back()">Back</button>
+
     <h1><%= name %></h1>
+
+    <h2>Details</h2>
     <table>
-      <tr>
-        <td>Nickname</td>
-        <td><%= name_limited %></td>
-      </tr>
-      <tr>
-        <td>URL</td>
-        <td><a href='<%= nasa_jpl_url %>'><%= nasa_jpl_url %></a></td>
-      </tr>
       <tr>
         <td>Reference ID</td>
         <td><%= neo_reference_id %></td>
@@ -38,6 +34,38 @@
       <tr>
         <td>Max Estimated Diameter (m)</td>
         <td><%= Math.round(estimated_diameter.meters.estimated_diameter_max).toLocaleString() %></td>
+      </tr>
+    </table>
+
+    <h2>Orbital Elements</h2>
+    <table>
+      <tr>
+        <td>Eccentricity</td>
+        <td><%= orbital_data.eccentricity %></td>
+      </tr>
+      <tr>
+        <td>Semi-major Axis (AU)</td>
+        <td><%= orbital_data.semi_major_axis %></td>
+      </tr>
+      <tr>
+        <td>Inclination (deg)</td>
+        <td><%= orbital_data.inclination %></td>
+      </tr>
+      <tr>
+        <td>Longitude of the Ascending Node (deg)</td>
+        <td><%= orbital_data.ascending_node_longitude %></td>
+      </tr>
+      <tr>
+        <td>Argument of Perihelion</td>
+        <td><%= orbital_data.perihelion_argument %></td>
+      </tr>
+      <tr>
+        <td>Mean Anomaly</td>
+        <td><%= orbital_data.mean_anomaly %></td>
+      </tr>
+      <tr>
+        <td>Orbital Period (days)</td>
+        <td><%= orbital_data.orbital_period %></td>
       </tr>
     </table>
 
@@ -74,15 +102,11 @@
         let table = document.getElementById("table-closest-approaches");
         let tableRows = table.getElementsByTagName("tr");
 
-        console.log(startDate);
-        console.log(endDate);
-
         // Loop through all table rows, and hide those who don't match the search query
         for (i = 0; i < tableRows.length; i++) {
           let dateColumn = tableRows[i].getElementsByTagName("td")[0];
           if (dateColumn) {
             let date = Date.parse(dateColumn.innerText);
-            console.log(date);
             if (date >= startDate && date <= endDate) {
               tableRows[i].style.display = "";
             } else {

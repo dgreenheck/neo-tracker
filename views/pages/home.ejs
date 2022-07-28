@@ -1,32 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Home Page</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <title>Home</title>
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
-    <h1>Near Earth Objects</h1>
-    <table>
-      <tr>
-        <th>Identifier</th>
-        <th>Name</th>
-        <th>Min Est. Diameter (m)</th>
-        <th>Max Est. Diameter (m)</th>
-        <th>Is Potentially Hazardous?</th>
-      </tr>
-      <% near_earth_objects.forEach( neo => {%>
-        <tr>
-          <td><a href="/neo/<%= neo.id %>"><%= neo.name %></a></td>
-          <td><%= Math.trunc(neo.estimated_diameter.meters.estimated_diameter_min).toLocaleString() %></td>
-          <td><%= Math.trunc(neo.estimated_diameter.meters.estimated_diameter_max).toLocaleString() %></td>
-          <td class=<%= neo.is_potentially_hazardous_asteroid ? 'hazardous' : 'not-hazardous' %>><%= neo.is_potentially_hazardous_asteroid %></td>
-        </tr>
-      <% }) %>
-    </table>
-    <% for(var i = Math.max(page.number - 5, 0); 
-           i <= Math.min(page.number + 5, page.total_pages); 
-           i++) { %>
-      <a href='/<%= i %>'><%= i %></a>
-    <% } %>
+    <h1>Today</h1>
+    <%- include('../partials/neo-table.ejs') %>
+    <hr>
+    <%- include('../partials/stats.ejs') %>
 </body>
 </html>

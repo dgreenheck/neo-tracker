@@ -1,0 +1,16 @@
+<table>
+  <tr>
+    <th>Identifier</th>
+    <th>Min Est. Diameter (m)</th>
+    <th>Max Est. Diameter (m)</th>
+    <th>Is Potentially Hazardous?</th>
+  </tr>
+  <% near_earth_objects.forEach( neo => {%>
+    <tr>
+      <td><a href="/neo/<%= neo.id %>"><%= neo.name %></a></td>
+      <td><%= Math.trunc(neo.estimated_diameter.meters.estimated_diameter_min).toLocaleString() %></td>
+      <td><%= Math.trunc(neo.estimated_diameter.meters.estimated_diameter_max).toLocaleString() %></td>
+      <td class=<%= neo.is_potentially_hazardous_asteroid ? 'hazardous' : 'not-hazardous' %>><%= neo.is_potentially_hazardous_asteroid %></td>
+    </tr>
+  <% }) %>
+</table>

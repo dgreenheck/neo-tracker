@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Browse NEOs</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <h1>Near Earth Objects</h1>
+    <%- include('../partials/neo-table.ejs') %>
+    <% for(var i = Math.max(page.number - 5, 0); 
+           i <= Math.min(page.number + 5, page.total_pages); 
+           i++) { %>
+      <a href='/browse/<%= i %>'><%= i %></a>
+    <% } %>
+    <hr>
+    <%- include('../partials/stats.ejs') %>
+</body>
+</html>
