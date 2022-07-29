@@ -4,8 +4,36 @@ body {
 
 h1 {
   font-size: 4em;
+  font-weight: 100;
   text-align: center;
 }
+
+/* =========================================================== */
+/* COLORS */
+
+.bg-primary {
+  background-color: rgb(32, 114, 196);
+}
+
+.text-white {
+  color: white
+}
+
+/* =========================================================== */
+/* TEXT ALIGNMENT */
+
+.align-left {
+  text-align: left;
+}
+
+.align-center {
+  text-align: center;
+}
+
+.align-right {
+  text-align: right;
+}
+
 
 /* =========================================================== */
 /* PAGINATION */
@@ -15,10 +43,9 @@ h1 {
   display: flex;
   flex-direction: row;
   justify-content: center;
-  gap: 16px;
+  gap: 1em;
 
-  margin-top: 32px;
-  margin-bottom: 32px;
+  margin: 2em 0;
 }
 
 .pagination-link {
@@ -27,7 +54,7 @@ h1 {
   color: black;
 
   text-decoration: none; /* Remove underline */
-  font-size: 1.25em;  
+  font-size: 1em;  
 
   /* Circle background */
   line-height: 2.5em;
@@ -50,56 +77,41 @@ h1 {
 
 .pagination-link.selected {
   /* Link for current page is shown as white text on blue circle */
-  background-color: dodgerblue;
+  background-color: rgb(32, 114, 196);
   border-color: white;
   color: white;
 }
 
 /* =========================================================== */
-/* NEO TABLE */
+/* TABLES */
 
-.neo-table {
-  margin: 0 auto;
+table {
   border-collapse: collapse;
   box-shadow: 0 0 8px rgb(220, 220, 220);
+
+  margin: 0 auto;
 }
 
-/* Header Row */
-.neo-table-header-cell {
-  background-color: dodgerblue;
-  color: white;
+th {
+  padding: 8px 32px;
 }
 
-.neo-table-header-cell:first-child {
-  text-align: left;
-  font-size: 1.25em;
-}
-
-/* Data Row */
-
-.neo-table-data-row {
+tr {
   background-color: white;
 }
 
-.neo-table-data-row:nth-child(odd) {
+tr:nth-child(odd) {
   background-color: aliceblue;
 }
 
-.neo-table-data-cell {
+td {
   font-size: 1em;
   font-weight: lighter;
   padding: 16px 32px;
   text-align: center;
 }
 
-.neo-table-data-cell:first-child {
-  text-align: left;
-  font-size: 1.25em;
-}
-
-.number {
-  font-size: medium;
-}
+/* TAGS */
 
 .tag {
   text-transform: uppercase;
@@ -108,7 +120,8 @@ h1 {
 
   color: white;
   background-color: lightgray;
-
+  box-shadow: 0 0 4px rgb(182, 182, 182);
+  
   /* Rectangular background */
   border-radius: 4px;
   width: 48px;
@@ -117,5 +130,5 @@ h1 {
 }
 
 .tag.hazardous {
-  background-color: dodgerblue;
+  background-color: #ed3333;
 }

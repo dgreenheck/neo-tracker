@@ -1,0 +1,28 @@
+<table>
+  <tr>
+    <th class="bg-primary text-white align-left">Identifier</th>
+    <th class="bg-primary text-white">Is Hazardous?</th>
+    <th class="bg-primary text-white">Diameter (m)</th>
+    <th class="bg-primary text-white">Next Approach</th>
+    <th class="bg-primary text-white">Miss Distance (km)</th>  
+  </tr>
+  <% near_earth_objects.forEach( neo => {%>
+    <tr>
+      <td class="align-left"><a href="/neo/<%= neo.id %>"><%= neo.name %></a></td>
+      <td>
+        <div class="tag <%= neo.is_potentially_hazardous_asteroid ? "hazardous" : "not-hazardous" %>">
+          <%= neo.is_potentially_hazardous_asteroid ? "yes" : "" %>
+        </div>
+      </td>
+      <td class="number"><%= Math.trunc(neo.estimated_diameter.meters.estimated_diameter_max).toLocaleString() %></td>
+      <% 
+        let nextApproach = neo.close_approach_data.find(approach => {
+          let approachDate = Date.parse(approach.close_approach_date);
+          return approachDate > Date.now()
+        })
+      %>
+      <td> <%= nextApproach.close_approach_date; %></td>
+      <td> <%= Math.trunc(nextApproach.miss_distance.kilometers).toLocaleString() %></td>
+    </tr>
+  <% }) %>
+</table>

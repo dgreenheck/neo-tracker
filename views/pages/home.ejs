@@ -1,16 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Home</title>
-    <link rel="stylesheet" href="/css/styles.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet"> 
+  <title>Home</title>
+  <%- include('../partials/style-headers.ejs') %>
 </head>
 <body>
-    <h1>Today</h1>
-    <%- include('../partials/neo-table.ejs') %>
-    <hr>
-    <%- include('../partials/stats.ejs') %>
+  <h1>Today</h1>
+  <%- include('../partials/today-table.ejs') %>
+  <hr>
+  <%- include('../partials/stats.ejs') %>
 </body>
 </html>
