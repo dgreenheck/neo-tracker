@@ -30,10 +30,24 @@ app.get('/', async (req, res) => {
   });
 });
 
+app.get('/browse/', async (req, res) => {
+  const data = await getNEOs(0);
+  const stats = await getStats();
+  res.render('pages/browse', { 
+    page: data.page,
+    near_earth_objects: data.near_earth_objects,
+    stats: stats
+  });
+});
+
 app.get('/browse/:page', async (req, res) => {
-  let page = '0';
+  let page = 0;
   if (req.params['page'] !== undefined) {
-    page = req.params['page'];
+    // Subtract 1 from page parameter. User facing pages are 1-based while
+    // the NASA API is 0-based.
+    page = Number(req.params['page']) - 1;
+
+    if (page < 0) page = 0;
   }
   const data = await getNEOs(page);
   const stats = await getStats();

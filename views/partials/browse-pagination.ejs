@@ -1,0 +1,7 @@
+<div class="pagination-control">
+  <% for(var i = Math.max(page.number - 5, 0); i <= Math.min(page.number + 5, page.total_pages); i++) { %>
+    <a class="pagination-link<%= i == page.number ? " selected" : "" %>" href="/browse/<%= i + 1 %>"">
+      <%= i + 1 %>
+    </a>
+    <% } %>
+</div>

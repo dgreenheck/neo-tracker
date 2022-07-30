@@ -79,18 +79,17 @@
     <table id="table-closest-approaches">
       <tr>
         <th style="display: none;"></th>
-        <th>Date</th>
-        <th>Miss Distance (km)</th>
-        <th>Relative Velocity (km/s)</th>
+        <th class="bg-primary text-white align-left">Date</th>
+        <th class="bg-primary text-white align-right">Miss Distance (km)</th>
+        <th class="bg-primary text-white align-right">Relative Velocity (km/s)</th>
       </tr>
-      <% close_approach_data.forEach(approach => { 
-      %>
+      <% close_approach_data.forEach(approach => { %>
       <tr>
         <%# Hide this column, only used for filtering %>
         <td style="display: none;"><%= approach.close_approach_date %></td>
-        <td><%= approach.close_approach_date_full %></td>
-        <td><%= Math.trunc(Number(approach.miss_distance.kilometers)).toLocaleString() %></td>
-        <td><%= Number(approach.relative_velocity.kilometers_per_second).toFixed(3).toLocaleString() %></td>
+        <td class="align-left"><%= approach.close_approach_date_full %></td>
+        <td class="align-right"><%= Math.trunc(Number(approach.miss_distance.kilometers)).toLocaleString() %></td>
+        <td class="align-right"><%= Number(approach.relative_velocity.kilometers_per_second).toFixed(3).toLocaleString() %></td>
       </tr>
       <% }) %>
     </table>

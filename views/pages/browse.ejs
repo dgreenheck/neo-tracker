@@ -5,17 +5,10 @@
   <%- include('../partials/style-headers.ejs') %>
 </head>
 <body>
-  <h1>Near Earth Objects</h1>
+  <%- include('../partials/header.ejs') %>
+  <%- include('../partials/browse-pagination.ejs') %>
   <%- include('../partials/browse-table.ejs') %>
-    <div class="pagination-control">
-      <% for(var i = Math.max(page.number - 5, 0); i <= Math.min(page.number + 5, page.total_pages); i++) { %>
-        <a class="pagination-link<%= i == page.number ? " selected" : "" %>" href="/browse/<%= i %>"">
-          <%= i %>
-        </a>
-        <% } %>
-    </div>
-    <hr>
-    <%- include('../partials/stats.ejs') %>
+  <%- include('../partials/browse-pagination.ejs') %>
 </body>
 
 </html>
