@@ -1,4 +1,6 @@
 import express from 'express';
+import path from 'path';
+import favicon from 'serve-favicon';
 
 import { getNEO, getNEOs, getTodayNEOs, getStats } from './services/neo.js';
 
@@ -6,6 +8,7 @@ const app = express();
 
 // Render static files
 app.use(express.static('public'));
+app.use(favicon('public/favicon.ico'));
 
 // Set EJS as templating engine
 app.set('view engine', 'ejs');
@@ -23,7 +26,7 @@ app.listen(port, () => {
 app.get('/', async (req, res) => {
   const data = await getTodayNEOs();
   const stats = await getStats();
-  res.render('pages/home', { 
+  res.render('pages/today', { 
     // NEOs are nested underneath a date property on the JSON data
     near_earth_objects: Object.values(data.near_earth_objects)[0],
     stats: stats
