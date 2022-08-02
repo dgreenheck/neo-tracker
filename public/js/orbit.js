@@ -61,36 +61,28 @@ let planets = {
   }
 }
 
-// Gets the position of the planet in the J2000 ecliptic plane for the given epoch
-function getPlanetPosition(planet, t_eph) {
+// Gets the position of the body in the J2000 ecliptic plane for the given epoch
+function getBodyPosition(body, t_eph) {
   // Get number of centuries past J2000
   let CT = (t_eph - JD_J2000) / 36525.0;
 
   // Compute first-order approximations for planetary orbital elements
-  let a   = planet.orbit[0] + planet.orbit[6]*CT;
-  let e   = planet.orbit[1] + planet.orbit[7]*CT;
-  let I   = planet.orbit[2] + planet.orbit[8]*CT;
-  let L   = planet.orbit[3] + planet.orbit[9]*CT;
-  let LP  = planet.orbit[4] + planet.orbit[10]*CT;
-  let LAN = planet.orbit[5] + planet.orbit[11]*CT;
-  
-  console.log(`a: ${a}, e: ${e}, I: ${I}, L: ${L}, LP: ${LP}, LAN: ${LAN}`);
+  let a   = body.orbit[0] + body.orbit[6]*CT;
+  let e   = body.orbit[1] + body.orbit[7]*CT;
+  let I   = body.orbit[2] + body.orbit[8]*CT;
+  let L   = body.orbit[3] + body.orbit[9]*CT;
+  let LP  = body.orbit[4] + body.orbit[10]*CT;
+  let LAN = body.orbit[5] + body.orbit[11]*CT;
 
   // Compute mean anomaly and clamp within -180 < M <= 180
   let omega = LP - LAN;
   let M = L - LP;
-  
-  console.log(`omega: ${omega}, M: ${M}`);
 
   if (M < -180) M += 360;
   if (M > 180) M -= 360;
 
-  console.log(`M (mod): ${M}`);
-
   // Solve for eccentric anomaly
   let E = solveE(M, e);
-
-  console.log(`E: ${E}`);
 
   // Compute heliocentric coordinates in the orbital plane
   // (x-axis aligned to perihelion, z-axis perpendicular to orbital plane)
@@ -99,8 +91,6 @@ function getPlanetPosition(planet, t_eph) {
     y: a * Math.sqrt(1 - e * e) * sind(E),
     z: 0
   };
-
-  console.log(r);
 
   // Compute the coordinates in the J2000 ecliptic plane with the x-axis aligned toward the equinox
   let r_ecl = {
@@ -115,7 +105,6 @@ function getPlanetPosition(planet, t_eph) {
   }
 
   r_ecl = { x: r_ecl.x, y: r_ecl.z, z: -r_ecl.y };
-  console.log(r_ecl);
 
   return r_ecl;
 }
@@ -146,8 +135,6 @@ function getOrbitPoints(planet, t_eph) {
       z: 0
     };
 
-    console.log(r);
-
     // Compute the coordinates in the J2000 ecliptic plane with the x-axis aligned toward the equinox
     let r_ecl = {
       x: ( cosd(omega)*cosd(LAN) - sind(omega)*sind(LAN)*cosd(I)) * r.x + 
@@ -161,40 +148,12 @@ function getOrbitPoints(planet, t_eph) {
     }
 
     r_ecl = { x: r_ecl.x, y: r_ecl.z, z: -r_ecl.y };
-    console.log(r_ecl);
 
     points.push(r_ecl);
   }
 
   return points;
 }
-
-/*
-function kepler2cartesian(a, e, i, omega, Omega, M) {
-
-  // Use Newton-Rhapson to find the eccentric anomaly
-  let E = solveE(M, e) / (180.0 / Math.PI);
-
-  // Directly solve for the true anomaly
-  let v = 2 * atan2d(
-    Math.sqrt(1 + e) * sind(E / 2),
-    Math.sqrt(1 - e) * cosd(E / 2)
-  )
-
-  // Get distance to the central body
-  let rc = a * (1 - e * cosd(E));
-
-  // Return position in orbital frame
-  // X: Pointing towards periapsis of orbit
-  // Y: Complete RH coordinate frame
-  // Z: Perpendicular to orbital plane
-  return {
-    x: rc * cosd(v),
-    y: rc * sind(v),
-    z: 0
-  };
-}
-*/
 
 // Solves for the eccentric anomaly given the mean anomaly M
 // Parameters
@@ -203,7 +162,6 @@ function kepler2cartesian(a, e, i, omega, Omega, M) {
 function solveE(M, e) {
 
   const e_star = rad2deg(e);
-  console.log(`e_star: ${e_star}`);
 
   // Tolerance for Newton-Rhapson
   const eps = 1E-6;
@@ -218,7 +176,6 @@ function solveE(M, e) {
     deltaM = M - (E_j - e_star * sind(E_j));
     deltaE = deltaM / (1 - e * cosd(E_j));
     E_jplus1 = E_j + deltaE;
-    console.log(`i: ${i}, E_j: ${E_j}, E_j+1: ${E_j+1}, deltaM: ${deltaM}, deltaE: ${deltaE}`);
     E_j = E_jplus1;
     i++;
   } while (Math.abs(deltaE) > eps && i < 50);
@@ -229,8 +186,9 @@ function solveE(M, e) {
 /* Utilities */
 
 // Returns the Julian Date for the given date
+// date: number of milliseconds since January 1, 1970 00:00:00 UTC. 
 function date2jd(date) {
-  return date.getTime() / 86400000 + 2440587.5;
+  return (date / 86400000) + 2440587.5;
 }
 
 // Returns the cosine of an angle specified in degrees

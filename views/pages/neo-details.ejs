@@ -179,29 +179,10 @@
       sunMesh.scale.set(0.25, 0.25, 0.25);
       scene.add(sunMesh);
 
+      const t_eph = date2jd(Date.now());
+
       for (const [key, planet] of Object.entries(planets)) {
-
-        console.log(key);
-
-        const t_eph = JD_J2000;
-
-        // Create mesh for planet
-        const planetMesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: planet.color }));
-        const scale = Math.log10(planet.diameter / 2) / 10.0;
-        const pos = getPlanetPosition(planet, t_eph);
-        planetMesh.scale.set(scale, scale, scale);
-        planetMesh.position.set(pos.x, pos.y, pos.z);
-        scene.add(planetMesh);
-
-        // Create orbit
-        const points = [];
-        for (const p of getOrbitPoints(planet, t_eph)) {
-          points.push(new THREE.Vector3(p.x, p.y, p.z));
-        }
-
-        const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
-        const line = new THREE.Line(lineGeometry, lineMaterial);
-        scene.add(line);
+        addBodyToScene(planet, t_eph);
       }
 
       // Draw axes
@@ -218,14 +199,30 @@
       scene.add(xAxis);
       scene.add(yAxis);
       scene.add(zAxis);
+      
+      const neo = neoObject(t_eph);
+      addBodyToScene(neo, t_eph);
+      
+      function addBodyToScene(body, t_eph) {
 
-      /*
-      const neo = new THREE.Mesh(neoGeometry, neoMaterial);
-      let pos = getNEOPosition();
-      neo.position.set(pos.x, pos.y, pos.z);
-      console.log(neo.position);
-      scene.add(neo);
-      */
+        // Create mesh for planet
+        const planetMesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: body.color }));
+        const scale = Math.log10(body.diameter / 2) / 100.0;
+        const pos = getBodyPosition(body, t_eph);
+        planetMesh.scale.set(scale, scale, scale);
+        planetMesh.position.set(pos.x, pos.y, pos.z);
+        scene.add(planetMesh);
+
+        // Create orbit
+        const points = [];
+        for (const p of getOrbitPoints(body, t_eph)) {
+          points.push(new THREE.Vector3(p.x, p.y, p.z));
+        }
+
+        const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+        const line = new THREE.Line(lineGeometry, lineMaterial);
+        scene.add(line);
+      }
 
       function animate() {
         requestAnimationFrame(animate);
@@ -235,17 +232,34 @@
 
       animate();
 
-      /*
-      function getNEOPosition() {
-        let a = Number('<%= orbital_data.semi_major_axis %>');
-        let e = Number('<%= orbital_data.eccentricity %>');
-        let i = Number('<%= orbital_data.inclination %>');
-        let Omega = Number('<%= orbital_data.ascending_node_longitude %>');
-        let omega = Number('<%= orbital_data.perihelion_argument %>');
+      function neoObject(t_eph) {
+        const t_epoch = Number('<%= orbital_data.epoch_osculation %>');
+        const a = Number('<%= orbital_data.semi_major_axis %>');
+        const e = Number('<%= orbital_data.eccentricity %>');
+        const I = Number('<%= orbital_data.inclination %>');
+        const LAN = Number('<%= orbital_data.ascending_node_longitude %>');
+        const arg_p = Number('<%= orbital_data.perihelion_argument %>');
         let M = Number('<%= orbital_data.mean_anomaly %>');
-        return kepler2cartesian(a, e, i, omega, Omega, M);
+        const n = Number('<%= orbital_data.mean_motion %>');
+
+        // Adjust mean anomaly by the mean motion to get the mean anomaly at t_eph
+        M += (t_eph - t_epoch) * n;
+        
+        if (M < -180) M += 360;
+        if (M > 180) M -= 360;
+
+        // Adjust mean anomaly by the mean motion
+        const LP = LAN + arg_p;
+        const L = LAN + arg_p + M;
+
+        return {
+          diameter: 4879,
+          color: 0x000000,
+          epoch: t_epoch,
+          orbit: [a,e,I,L,LP,LAN,0,0,0,0,0,0]
+        }
       }
-      */
+      
     </script>
 </body>
 </html>
