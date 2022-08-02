@@ -4,22 +4,21 @@ let JD_J2000 = 2451545.0;
 
 let planets = {
   //  Below are osculating elements for the planets, given for epoch 2000 January 1.5 (i.e. Julian Day 2451545.0). 
-  //  The elements are a least-squares fit to the 250-year span of the DE 200 planetary ephemeris to a Keplerian orbit,
-  //  where each element is allowed to vary linearly with time. The resulting elements fit the positions of the terrestrial 
-  //  planets to within 25 arcseconds or better, but achieves only 10-arcminute accuracy for Saturn. Elements are 
-  //  referenced to mean ecliptic and equinox of J2000 at the J2000 epoch (2451545.0 JD). 
+  //  The elements are a least-squares fit to the 250-year span of the DE 200 planetary ephemeris to a Keplerian
+  //  orbit, where each element is allowed to vary linearly with time. The resulting elements fit the positions
+  //  of the terrestrial planets to within 25 arcseconds or better, but achieves only 10-arcminute accuracy for
+  //  Saturn. Elements are referenced to mean ecliptic and equinox of J2000 at the J2000 epoch (2451545.0 JD). 
   //
   //  Source: https://ssd.jpl.nasa.gov/planets/approx_pos.html
   //  
   //  Legend
-  //    0 = Semimajor axis (AU)
-  //    1 = Eccentricity
-  //    2 = Inclination (deg)
-  //    3 = Mean longitude at epoch (deg)
-  //    4 = Longitude of Perihelion (deg)
-  //    5 = Longitude of Ascending Node (deg)
+  //    0 = a: Semimajor axis (AU)
+  //    1 = e: Eccentricity
+  //    2 = I: Inclination (deg)
+  //    3 = L: Mean longitude at epoch (deg)
+  //    4 = LP: Longitude of Perihelion (deg)
+  //    5 = LAN: Longitude of Ascending Node (deg)
   //    6 - 11 = derivates of 0 - 5 (units/century)
-
   mercury: {
     diameter: 4879,
     color: 0xE837AF,
@@ -62,33 +61,36 @@ let planets = {
   }
 }
 
-// Returns the Julian Date for the given date
-function date2jd(date) {
-  return date.getTime() / 86400000 + 2440587.5;
-}
-
 // Gets the position of the planet in the J2000 ecliptic plane for the given epoch
 function getPlanetPosition(planet, t_eph) {
   // Get number of centuries past J2000
-  let T = (t_eph - JD_J2000) / 36525.0;
+  let CT = (t_eph - JD_J2000) / 36525.0;
 
   // Compute first-order approximations for planetary orbital elements
-  let a   = planet.orbit[0] + planet.orbit[6]*T;
-  let e   = planet.orbit[1] + planet.orbit[7]*T;
-  let I   = planet.orbit[2] + planet.orbit[8]*T;
-  let L   = planet.orbit[3] + planet.orbit[9]*T;
-  let LP  = planet.orbit[4] + planet.orbit[10]*T;
-  let LAN = planet.orbit[5] + planet.orbit[11]*T;
+  let a   = planet.orbit[0] + planet.orbit[6]*CT;
+  let e   = planet.orbit[1] + planet.orbit[7]*CT;
+  let I   = planet.orbit[2] + planet.orbit[8]*CT;
+  let L   = planet.orbit[3] + planet.orbit[9]*CT;
+  let LP  = planet.orbit[4] + planet.orbit[10]*CT;
+  let LAN = planet.orbit[5] + planet.orbit[11]*CT;
   
+  console.log(`a: ${a}, e: ${e}, I: ${I}, L: ${L}, LP: ${LP}, LAN: ${LAN}`);
+
   // Compute mean anomaly and clamp within -180 < M <= 180
   let omega = LP - LAN;
   let M = L - LP;
   
+  console.log(`omega: ${omega}, M: ${M}`);
+
   if (M < -180) M += 360;
   if (M > 180) M -= 360;
 
+  console.log(`M (mod): ${M}`);
+
   // Solve for eccentric anomaly
-  let E = solveE(M, rad2deg(e));
+  let E = solveE(M, e);
+
+  console.log(`E: ${E}`);
 
   // Compute heliocentric coordinates in the orbital plane
   // (x-axis aligned to perihelion, z-axis perpendicular to orbital plane)
@@ -98,16 +100,76 @@ function getPlanetPosition(planet, t_eph) {
     z: 0
   };
 
+  console.log(r);
+
   // Compute the coordinates in the J2000 ecliptic plane with the x-axis aligned toward the equinox
   let r_ecl = {
-    x: (cosd(omega)*cosd(LAN) - sind(omega)*sind(LAN)*cosd(I)) * r.x + (-sind(omega)*cosd(LAN) - cosd(omega)*sind(LAN)*cosd(I)) * r.y,
-    y: (cosd(omega)*sind(LAN) - sind(omega)*cosd(LAN)*cosd(I)) * r.x + (-sind(omega)*sind(LAN) + cosd(omega)*cosd(LAN)*cosd(I)) * r.y,
-    z: sind(omega)*sind(I) * r.x + cosd(omega)*sind(I) * r.y
+    x: ( cosd(omega)*cosd(LAN) - sind(omega)*sind(LAN)*cosd(I)) * r.x + 
+       (-sind(omega)*cosd(LAN) - cosd(omega)*sind(LAN)*cosd(I)) * r.y,
+    
+    y: ( cosd(omega)*sind(LAN) + sind(omega)*cosd(LAN)*cosd(I)) * r.x + 
+       (-sind(omega)*sind(LAN) + cosd(omega)*cosd(LAN)*cosd(I)) * r.y,
+
+    z: (sind(omega)*sind(I)) * r.x +
+       (cosd(omega)*sind(I)) * r.y
   }
+
+  r_ecl = { x: r_ecl.x, y: r_ecl.z, z: -r_ecl.y };
+  console.log(r_ecl);
 
   return r_ecl;
 }
 
+function getOrbitPoints(planet, t_eph) {
+  // Get number of centuries past J2000
+  const CT = (t_eph - JD_J2000) / 36525.0;
+
+  // Compute first-order approximations for planetary orbital elements
+  const a   = planet.orbit[0] + planet.orbit[6]*CT;
+  const e   = planet.orbit[1] + planet.orbit[7]*CT;
+  const I   = planet.orbit[2] + planet.orbit[8]*CT;
+  const L   = planet.orbit[3] + planet.orbit[9]*CT;
+  const LP  = planet.orbit[4] + planet.orbit[10]*CT;
+  const LAN = planet.orbit[5] + planet.orbit[11]*CT;
+
+  // Compute mean anomaly and clamp within -180 < M <= 180
+  const omega = LP - LAN;
+
+  let points = [];
+  for (let E = 0; E <= 360; E += 10) {
+
+    // Compute heliocentric coordinates in the orbital plane
+    // (x-axis aligned to perihelion, z-axis perpendicular to orbital plane)
+    let r = {
+      x: a * (cosd(E) - e),
+      y: a * Math.sqrt(1 - e * e) * sind(E),
+      z: 0
+    };
+
+    console.log(r);
+
+    // Compute the coordinates in the J2000 ecliptic plane with the x-axis aligned toward the equinox
+    let r_ecl = {
+      x: ( cosd(omega)*cosd(LAN) - sind(omega)*sind(LAN)*cosd(I)) * r.x + 
+        (-sind(omega)*cosd(LAN) - cosd(omega)*sind(LAN)*cosd(I)) * r.y,
+      
+      y: ( cosd(omega)*sind(LAN) + sind(omega)*cosd(LAN)*cosd(I)) * r.x + 
+        (-sind(omega)*sind(LAN) + cosd(omega)*cosd(LAN)*cosd(I)) * r.y,
+
+      z: (sind(omega)*sind(I)) * r.x +
+        (cosd(omega)*sind(I)) * r.y
+    }
+
+    r_ecl = { x: r_ecl.x, y: r_ecl.z, z: -r_ecl.y };
+    console.log(r_ecl);
+
+    points.push(r_ecl);
+  }
+
+  return points;
+}
+
+/*
 function kepler2cartesian(a, e, i, omega, Omega, M) {
 
   // Use Newton-Rhapson to find the eccentric anomaly
@@ -132,6 +194,7 @@ function kepler2cartesian(a, e, i, omega, Omega, M) {
     z: 0
   };
 }
+*/
 
 // Solves for the eccentric anomaly given the mean anomaly M
 // Parameters
@@ -139,39 +202,58 @@ function kepler2cartesian(a, e, i, omega, Omega, M) {
 // - e: Eccentricity (unitless)
 function solveE(M, e) {
 
-  let eps = 1E-6;               // Tolerance for Newton-Rhapson
-  let i = 0;                    // Iteration
-  let E_j = M - e * sind(M);    // Eccentric anomaly at iteration J
-  let E_jplus1 = E_j;           // Eccentric anomaly at iteration J+1
+  const e_star = rad2deg(e);
+  console.log(`e_star: ${e_star}`);
 
+  // Tolerance for Newton-Rhapson
+  const eps = 1E-6;
+  // Eccentric anomaly at iteration J          
+  let E_j = M - e_star * sind(M);
+  // Eccentric anomaly at iteration J+1
+  let E_jplus1 = 0;          
+
+  let i = 0;
   do {
     // Find root of equation M(t) = E(t) - e * sin(E(t))
-    deltaM = M - (E_j - e * sind(E_j));
+    deltaM = M - (E_j - e_star * sind(E_j));
     deltaE = deltaM / (1 - e * cosd(E_j));
     E_jplus1 = E_j + deltaE;
+    console.log(`i: ${i}, E_j: ${E_j}, E_j+1: ${E_j+1}, deltaM: ${deltaM}, deltaE: ${deltaE}`);
     E_j = E_jplus1;
     i++;
-  } while (deltaE > eps && i < 50);
+  } while (Math.abs(deltaE) > eps && i < 50);
 
   return E_j;
 }
 
+/* Utilities */
+
+// Returns the Julian Date for the given date
+function date2jd(date) {
+  return date.getTime() / 86400000 + 2440587.5;
+}
+
+// Returns the cosine of an angle specified in degrees
 function cosd(x) {
   return Math.cos(deg2rad(x));
 }
 
+// Returns the sine of an angle specified in degrees
 function sind(x) {
   return Math.sin(deg2rad(x));
 }
 
+// Returns the signed arctangent of (x/y) in degrees
 function atan2d(x,y) {
   return rad2deg(Math.atan2(x,y));
 }
 
+// Converts the argument from degrees to radians
 function deg2rad(x) {
   return x / (180.0 / Math.PI);
 }
 
+// Converts the argument from radians to degrees
 function rad2deg(x) {
   return x * (180.0 / Math.PI);
 }

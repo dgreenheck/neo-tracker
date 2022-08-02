@@ -146,37 +146,78 @@
 
     <script type="module">
       import * as THREE from 'three';
-
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(75, 1.0, 0.1, 1000);
-      camera.position.z = 40;
+      import { OrbitControls } from 'https://unpkg.com/three@0.143.0/examples/jsm/controls/OrbitControls.js';
 
       // Setup renderer
       const renderer = new THREE.WebGLRenderer({ alpha: false });
-      renderer.setClearColor(new THREE.Color( 0x000000 ), 1);
+      renderer.setClearColor(new THREE.Color( 0xffffff ), 1);
       renderer.setSize(600, 600);
 
       // Add canvas to the DOM
       let canvas = document.getElementById("orbit-viewer").appendChild(renderer.domElement);
       canvas.className = "view-three-d";
 
+      // Setup scene
+      const scene = new THREE.Scene();
+
+      // Setup camera
+      const camera = new THREE.PerspectiveCamera(75, 1.0, 0.1, 1000);
+      camera.position.y = 40;
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
+      controls.dampingFactor = 0.05;
+      controls.screenSpacePanning = true;
+      controls.minDistance = 1;
+      controls.maxDistance = 100;
+      controls.maxPolarAngle = Math.PI / 2;
+      controls.update();
+
       const geometry = new THREE.SphereGeometry(1, 16, 16);
+      const lineMaterial = new THREE.LineBasicMaterial( {color: 0x888888 });
 
       const sunMesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: 0xffdd00 }));
       sunMesh.scale.set(0.25, 0.25, 0.25);
       scene.add(sunMesh);
 
       for (const [key, planet] of Object.entries(planets)) {
+
         console.log(key);
+
+        const t_eph = JD_J2000;
+
+        // Create mesh for planet
         const planetMesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: planet.color }));
-        const scale = Math.log10(planet.diameter / 2) / 20.0;
-        const pos = getPlanetPosition(planet, JD_J2000);
-        console.log(scale);
-        console.log(pos);
+        const scale = Math.log10(planet.diameter / 2) / 10.0;
+        const pos = getPlanetPosition(planet, t_eph);
         planetMesh.scale.set(scale, scale, scale);
         planetMesh.position.set(pos.x, pos.y, pos.z);
         scene.add(planetMesh);
+
+        // Create orbit
+        const points = [];
+        for (const p of getOrbitPoints(planet, t_eph)) {
+          points.push(new THREE.Vector3(p.x, p.y, p.z));
+        }
+
+        const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+        const line = new THREE.Line(lineGeometry, lineMaterial);
+        scene.add(line);
       }
+
+      // Draw axes
+      const xPoints = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(1000, 0, 0)];
+      const xAxis = new THREE.Line(new THREE.BufferGeometry().setFromPoints(xPoints),
+                                   new THREE.LineBasicMaterial( {color: 0xFF0000 }));
+      const yPoints = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 1000, 0)];
+      const yAxis = new THREE.Line(new THREE.BufferGeometry().setFromPoints(yPoints),
+                                   new THREE.LineBasicMaterial( {color: 0x00FF00 }));
+      const zPoints = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 1000)];
+      const zAxis = new THREE.Line(new THREE.BufferGeometry().setFromPoints(zPoints),
+                                   new THREE.LineBasicMaterial( {color: 0x0000FF }));
+
+      scene.add(xAxis);
+      scene.add(yAxis);
+      scene.add(zAxis);
 
       /*
       const neo = new THREE.Mesh(neoGeometry, neoMaterial);
@@ -188,11 +229,13 @@
 
       function animate() {
         requestAnimationFrame(animate);
+        controls.update();
         renderer.render(scene, camera);
       };
 
       animate();
 
+      /*
       function getNEOPosition() {
         let a = Number('<%= orbital_data.semi_major_axis %>');
         let e = Number('<%= orbital_data.eccentricity %>');
@@ -202,6 +245,7 @@
         let M = Number('<%= orbital_data.mean_anomaly %>');
         return kepler2cartesian(a, e, i, omega, Omega, M);
       }
+      */
     </script>
 </body>
 </html>
