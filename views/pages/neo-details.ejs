@@ -150,7 +150,7 @@
 
       // Setup renderer
       const renderer = new THREE.WebGLRenderer({ alpha: false });
-      renderer.setClearColor(new THREE.Color( 0xffffff ), 1);
+      renderer.setClearColor(new THREE.Color( 0x000000 ), 1);
       renderer.setSize(600, 600);
 
       // Add canvas to the DOM
@@ -253,8 +253,8 @@
         const L = LAN + arg_p + M;
 
         return {
-          diameter: 4879,
-          color: 0x000000,
+          diameter: 100,
+          color: 0xFFFFFF,
           epoch: t_epoch,
           orbit: [a,e,I,L,LP,LAN,0,0,0,0,0,0]
         }
