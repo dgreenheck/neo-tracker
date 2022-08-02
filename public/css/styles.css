@@ -217,5 +217,6 @@ td {
 /* ORBIT VIEWER */
 
 .view-three-d {
-  margin: 0 auto;
+  margin: 2em auto;
+  border: 1px solid black;
 }
