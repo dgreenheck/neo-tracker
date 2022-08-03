@@ -216,7 +216,21 @@ td {
 /* =========================================================== */
 /* ORBIT VIEWER */
 
+#orbit-viewer {
+  position: relative;
+}
+
 .view-three-d {
   margin: 2em auto;
   border: 1px solid black;
+}
+
+#overlay {
+  color: white;
+  position: absolute;
+	top: 10px;
+	width: 100%;
+	text-align: center;
+	z-index: 100;
+	display:block;
 }

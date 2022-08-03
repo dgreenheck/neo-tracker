@@ -21,8 +21,8 @@
           return approachDate > Date.now()
         })
       %>
-      <td> <%= nextApproach.close_approach_date; %></td>
-      <td> <%= Math.trunc(nextApproach.miss_distance.kilometers).toLocaleString() %></td>
+      <td> <%= nextApproach ? nextApproach.close_approach_date : "N/A" %></td>
+      <td> <%= nextApproach ? Math.trunc(nextApproach.miss_distance.kilometers).toLocaleString() : "N/A" %></td>
     </tr>
   <% }) %>
 </table>

@@ -12,7 +12,8 @@
         }
       }
     </script>
-    <script type="text/javascript" src="/js/orbit.js"></script>
+    <script type="module" src="/js/orbit.js"></script>
+    <script type="text/javascript" src="/js/closeApproachFilter.js"></script>
 </head>
 <body onload="filterTable()">
     <button onclick="history.back()">Back</button>
@@ -47,39 +48,11 @@
       </tr>
     </table>
 
-    <h2>Orbital Elements</h2>
-    <table>
-      <tr>
-        <td>Eccentricity</td>
-        <td><%= orbital_data.eccentricity %></td>
-      </tr>
-      <tr>
-        <td>Semi-major Axis (AU)</td>
-        <td><%= orbital_data.semi_major_axis %></td>
-      </tr>
-      <tr>
-        <td>Inclination (deg)</td>
-        <td><%= orbital_data.inclination %></td>
-      </tr>
-      <tr>
-        <td>Longitude of the Ascending Node (deg)</td>
-        <td><%= orbital_data.ascending_node_longitude %></td>
-      </tr>
-      <tr>
-        <td>Argument of Perihelion</td>
-        <td><%= orbital_data.perihelion_argument %></td>
-      </tr>
-      <tr>
-        <td>Mean Anomaly</td>
-        <td><%= orbital_data.mean_anomaly %></td>
-      </tr>
-      <tr>
-        <td>Orbital Period (days)</td>
-        <td><%= orbital_data.orbital_period %></td>
-      </tr>
-    </table>
+    <%- include('../partials/orbital-elements-table.ejs') %>
 
-    <div id="orbit-viewer"></div>
+    <div id="orbit-viewer">
+      <div id="overlay">Hello</div>
+    </div>
 
     <h2>Close Approaches</h2>
     
@@ -105,132 +78,28 @@
       </tr>
       <% }) %>
     </table>
-    
-    <script type="text/javascript">
-      function filterTable() {
-        let startDate = Date.parse(document.getElementById("start-date").value);
-        let endDate = Date.parse(document.getElementById("end-date").value);
-        let table = document.getElementById("table-closest-approaches");
-        let tableRows = table.getElementsByTagName("tr");
-
-        // Loop through all table rows, and hide those who don't match the search query
-        for (i = 0; i < tableRows.length; i++) {
-          let dateColumn = tableRows[i].getElementsByTagName("td")[0];
-          if (dateColumn) {
-            let date = Date.parse(dateColumn.innerText);
-            if (date >= startDate && date <= endDate) {
-              tableRows[i].style.display = "";
-            } else {
-              tableRows[i].style.display = "none";
-            }
-          }
-        }
-      }
-
-      function toggleStartDateFilter() {
-        if (!document.getElementById('checkbox-start-date').checked) {
-          document.getElementById('start-date').setAttribute('disabled', 'true');
-        } else {
-          document.getElementById('start-date').removeAttribute('disabled');
-        }
-      }
-
-      function toggleEndDateFilter() {
-        if (!document.getElementById('checkbox-end-date').checked) {
-          document.getElementById('end-date').setAttribute('disabled', 'true');
-        } else {
-          document.getElementById('end-date').removeAttribute('disabled');
-        }
-      }
-    </script>
 
     <script type="module">
       import * as THREE from 'three';
-      import { OrbitControls } from 'https://unpkg.com/three@0.143.0/examples/jsm/controls/OrbitControls.js';
+      import OrbitView from '/js/orbitView.js';
+      import { date2jd } from '/js/datetime.js';
+      import { planets } from "/js/planets.js";
 
-      // Setup renderer
-      const renderer = new THREE.WebGLRenderer({ alpha: false });
-      renderer.setClearColor(new THREE.Color( 0x000000 ), 1);
-      renderer.setSize(600, 600);
+      const container = document.getElementById("orbit-viewer");
+      let orbitView = new OrbitView(600, 600, container);
 
-      // Add canvas to the DOM
-      let canvas = document.getElementById("orbit-viewer").appendChild(renderer.domElement);
-      canvas.className = "view-three-d";
-
-      // Setup scene
-      const scene = new THREE.Scene();
-
-      // Setup camera
-      const camera = new THREE.PerspectiveCamera(75, 1.0, 0.1, 1000);
-      camera.position.y = 40;
-      const controls = new OrbitControls(camera, renderer.domElement);
-      controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
-      controls.dampingFactor = 0.05;
-      controls.screenSpacePanning = true;
-      controls.minDistance = 1;
-      controls.maxDistance = 100;
-      controls.maxPolarAngle = Math.PI / 2;
-      controls.update();
-
-      const geometry = new THREE.SphereGeometry(1, 16, 16);
-      const lineMaterial = new THREE.LineBasicMaterial( {color: 0x888888 });
-
-      const sunMesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: 0xffdd00 }));
-      sunMesh.scale.set(0.25, 0.25, 0.25);
-      scene.add(sunMesh);
-
-      const t_eph = date2jd(Date.now());
+      const JD = date2jd(Date.now());
 
       for (const [key, planet] of Object.entries(planets)) {
-        addBodyToScene(planet, t_eph);
+        orbitView.addBody(planet, JD);
+        orbitView.addOrbit(planet, JD);
       }
 
-      // Draw axes
-      const xPoints = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(1000, 0, 0)];
-      const xAxis = new THREE.Line(new THREE.BufferGeometry().setFromPoints(xPoints),
-                                   new THREE.LineBasicMaterial( {color: 0xFF0000 }));
-      const yPoints = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 1000, 0)];
-      const yAxis = new THREE.Line(new THREE.BufferGeometry().setFromPoints(yPoints),
-                                   new THREE.LineBasicMaterial( {color: 0x00FF00 }));
-      const zPoints = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 1000)];
-      const zAxis = new THREE.Line(new THREE.BufferGeometry().setFromPoints(zPoints),
-                                   new THREE.LineBasicMaterial( {color: 0x0000FF }));
+      const neo = neoObject(JD);
+      orbitView.addBody(neo, JD);
+      orbitView.addOrbit(neo, JD);
 
-      scene.add(xAxis);
-      scene.add(yAxis);
-      scene.add(zAxis);
-      
-      const neo = neoObject(t_eph);
-      addBodyToScene(neo, t_eph);
-      
-      function addBodyToScene(body, t_eph) {
-
-        // Create mesh for planet
-        const planetMesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ color: body.color }));
-        const scale = Math.log10(body.diameter / 2) / 100.0;
-        const pos = getBodyPosition(body, t_eph);
-        planetMesh.scale.set(scale, scale, scale);
-        planetMesh.position.set(pos.x, pos.y, pos.z);
-        scene.add(planetMesh);
-
-        // Create orbit
-        const points = [];
-        for (const p of getOrbitPoints(body, t_eph)) {
-          points.push(new THREE.Vector3(p.x, p.y, p.z));
-        }
-
-        const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
-        const line = new THREE.Line(lineGeometry, lineMaterial);
-        scene.add(line);
-      }
-
-      function animate() {
-        requestAnimationFrame(animate);
-        controls.update();
-        renderer.render(scene, camera);
-      };
-
-      animate();
+      orbitView.animate();
 
       function neoObject(t_eph) {
         const t_epoch = Number('<%= orbital_data.epoch_osculation %>');
@@ -259,7 +128,6 @@
           orbit: [a,e,I,L,LP,LAN,0,0,0,0,0,0]
         }
       }
-      
     </script>
 </body>
 </html>
